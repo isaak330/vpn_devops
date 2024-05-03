@@ -37,9 +37,6 @@ class _MyAppState extends State<MyApp> {
     );
 
     engine.initialize(
-      // groupIdentifier: "group.com.laskarmedia.vpn",
-      // providerBundleIdentifier:
-      //     "id.laskarmedia.openvpnFlutterExample.VPNExtension",
       localizedDescription: "VPN by Zalipuha",
       lastStage: (stage) {
         setState(() {
@@ -65,34 +62,61 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('DevOps VPN'),
         ),
         body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(stage?.toString() ?? VPNStage.disconnected.toString()),
-              Text(status?.toJson().toString() ?? ""),
+              stage == VPNStage.disconnected
+                  ? const Icon(
+                      Icons.wifi_off,
+                      color: Colors.red,
+                      size: 60,
+                    )
+                  : stage == VPNStage.connected
+                      ? const Icon(
+                          Icons.wifi,
+                          color: Colors.green,
+                          size: 60,
+                        )
+                      : const CircularProgressIndicator(
+                          color: Colors.yellow,
+                        ),
+              //  Text(stage?.toString() ?? VPNStage.disconnected.toString()),
+              const SizedBox(
+                height: 32,
+              ),
+              Text('Время сессии: ${status?.toJson()['duration'].toString()}' ??
+                  ""),
+              Text(
+                  'Пакетов получено: ${status?.toJson()['packets_in'].toString()}' ??
+                      ""),
+              Text(
+                  'Пакетов отправлено: ${status?.toJson()['packets_out'].toString()}' ??
+                      ""),
+              const SizedBox(
+                height: 32,
+              ),
               TextButton(
-                child: const Text("Start"),
+                child: const Text("Подключиться"),
                 onPressed: () {
                   initPlatformState();
                 },
               ),
               TextButton(
-                child: const Text("STOP"),
+                child: const Text("Отключиться"),
                 onPressed: () {
                   engine.disconnect();
                 },
               ),
               if (Platform.isAndroid)
                 TextButton(
-                  child: Text(_granted ? "Granted" : "Request Permission"),
+                  child: Text(_granted ? "" : "Запросить доступ"),
                   onPressed: () {
                     engine.requestPermissionAndroid().then((value) {
-                      setState(() {
-                        _granted = value;
-                      });
+                      _granted = value;
+                      setState(() {});
                     });
                   },
                 ),
@@ -103,9 +127,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
-const String defaultVpnUsername = "";
-const String defaultVpnPassword = "";
 
 String config = """
 client
